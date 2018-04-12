@@ -1,0 +1,13 @@
+sonata_admin:
+    title: 'Sonata Admin'
+    dashboard:
+        blocks:
+            - { type: sonata.admin.block.admin_list, position: left }
+    #edit: '@SonataAdmin/CRUD/edit.html.twig'
+    #tab_menu_template: '@SonataAdmin/Core/tab_menu_template.html.twig'
+sonata_block:
+    blocks:
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+#sonata_user:
+  #user:  Application\Sonata\UserBundle\Entity\User

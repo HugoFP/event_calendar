@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event{% endblock %}
+
+{% block body %}
+
+    <h1>Lista de Eventos</h1>
+	<ul class="event-list">
+        <li>
+	    {% for event in eventList if event.isActive %}
+			<p>Evento: {{ event.name }}</p>
+			<p>Desde: {{ event.dateFrom.date }}</p>
+			<p>Hasta: {{ event.dateTo.date }}</p>
+			<p>Capacidad Total: {{ event.capacity }}</p>
+			<p>Capacidad Restante: {{ event.capacityLeft }}
+				<a href="{{ path('add_user_to_event', {'id': event.id }) }}">Incorporarse</a>
+			</p>
+	    {% else %}
+	        <li>No hay eventos</li>
+	    {% endfor %}
+	    </li>
+	</ul>
+
+{% endblock %}
