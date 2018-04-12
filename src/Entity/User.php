@@ -53,7 +53,15 @@ class User implements UserInterface, \Serializable
      */
     private $is_active;
 
-    private $roles;
+    /**
+     * @ORM\Column(type="json")
+     */
+	private $roles = [];
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $order;
 
     public function __construct()
     {
@@ -67,13 +75,7 @@ class User implements UserInterface, \Serializable
 
     public function getRoles()
     {
-        $roles = $this->roles;
-
-        if (empty($roles)) {
-            $roles[] = 'ROLE_USER';
-        }
-
-        return array_unique($roles);
+        return array_unique($this->roles);
     }
 
     public function setRoles(array $roles): void
@@ -212,6 +214,26 @@ class User implements UserInterface, \Serializable
     public function setIsActive(bool $is_active): self
     {
         $this->is_active = $is_active;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * @param mixed $order
+     *
+     * @return self
+     */
+    public function setOrder($order)
+    {
+        $this->order = $order;
 
         return $this;
     }
