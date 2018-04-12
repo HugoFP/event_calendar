@@ -8,14 +8,14 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20180402094705 extends AbstractMigration
+class Version20180410161543 extends AbstractMigration
 {
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE user CHANGE password password VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE user ADD roles JSON NOT NULL, ADD `order` INT NOT NULL');
     }
 
     public function down(Schema $schema)
@@ -23,6 +23,6 @@ class Version20180402094705 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE user CHANGE password password VARCHAR(50) NOT NULL COLLATE utf8mb4_unicode_ci');
+        $this->addSql('ALTER TABLE user DROP roles, DROP `order`');
     }
 }
