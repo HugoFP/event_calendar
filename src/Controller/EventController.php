@@ -9,90 +9,93 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-/**
- * @Route("/event")
- */
 class EventController extends Controller
 {
+	protected $subcribed = array();
+	protected $notSubscribed = array();
+
     /**
-     * @Route("/", name="event_index", methods="GET")
+     * @Route("/event/{id}", name="event_show", methods="GET", requirements={"id"="\d+"})
      */
-    public function index(EventRepository $eventRepository): Response
+    public function show(Event $event, AuthorizationCheckerInterface $authChecker): Response
     {
-        return $this->render('event/index.html.twig', ['events' => $eventRepository->findAll()]);
+        return $this->render('event/event.html.twig', ['event' => $event]);
     }
 
     /**
-     * @Route("/list", name="event_list", methods="GET")
+     * @Route("/event/list", name="event_list", methods="GET")
      */
-    public function list(EventRepository $eventRepository): Response
+    public function list(EventRepository $eventRepository, AuthorizationCheckerInterface $authChecker): Response
     {
-        return $this->render('event/index.html.twig', ['events' => $eventRepository->findAll()]);
+    	$user = $this->get('security.token_storage')->getToken()->getUser();
+		$availableEventList = $this->getDoctrine()
+		    ->getRepository(Event::class)
+		    ->findAllAvailableEventsForTheUser($user->getId());
+
+    	return $this->render(
+    		'event/list.html.twig',
+    		['eventList' => $availableEventList]);
     }
 
-    /**
-     * @Route("/new", name="event_new", methods="GET|POST")
-     */
-    public function new(Request $request): Response
+    protected function eventsSubscribedByUser($event)
     {
-        $event = new Event();
-        $form = $this->createForm(EventType::class, $event);
-        $form->handleRequest($request);
+		$user = $this->get('security.token_storage')->getToken()->getUser();
+		$userSuscriptionState = in_array($user->getId(), explode(',', $event->findAllAvailableEventsForTheUser()));
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($event);
-            $em->flush();
-
-            return $this->redirectToRoute('event_index');
-        }
-
-        return $this->render('event/new.html.twig', [
-            'event' => $event,
-            'form' => $form->createView(),
-        ]);
+		if ($userSuscriptionState) {
+			array_push($this->subcribed, $event);
+			// array_push($this->subscribed['yes'], $event);
+		} else {
+			// array_push($this->subscribed['no'], $event);
+			array_push($this->notSubcribed, $event);
+		}
     }
 
-    /**
-     * @Route("/{id}", name="event_show", methods="GET")
-     */
-    public function show(Event $event): Response
+    public function eventUnSubscribedByUser()
     {
-        return $this->render('event/show.html.twig', ['event' => $event]);
+    	findUserUnsubscribedEvents();
     }
 
-    /**
-     * @Route("/{id}/edit", name="event_edit", methods="GET|POST")
-     */
-    public function edit(Request $request, Event $event): Response
+    protected function eventsAvailabletoJoin()
     {
-        $form = $this->createForm(EventType::class, $event);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('event_edit', ['id' => $event->getId()]);
-        }
-
-        return $this->render('event/edit.html.twig', [
-            'event' => $event,
-            'form' => $form->createView(),
-        ]);
     }
 
-    /**
-     * @Route("/{id}", name="event_delete", methods="DELETE")
-     */
-    public function delete(Request $request, Event $event): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$event->getId(), $request->request->get('_token'))) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($event);
-            $em->flush();
-        }
 
-        return $this->redirectToRoute('event_index');
-    }
+	/**
+	 * @param Event $event
+	 *
+	 * @Route("/event/add/{id}", requirements={"id" = "\d+"}, name="add_user_to_event")
+	 * @return RedirectResponse
+	 */
+	public function addUserToEvent(Event $event)
+	{
+		$user = $this->get('security.token_storage')->getToken()->getUser();
+		$capacity = $event->getCapacity();
+		$userListStored = $event->getUserList();
+
+		$event->setCapacity($capacity-1);
+
+		$manager->persist($event);
+	}
+
+	/**
+	 * @param Event $event
+	 *
+	 * @Route("/event/add/{id}", requirements={"id" = "\d+"}, name="add_user_to_event")
+	 * @return RedirectResponse
+	 */
+	public function removeUserToEvent(Event $event)
+	{
+		$user = $this->get('security.token_storage')->getToken()->getUser();
+		$capacity = $event->getCapacity();
+		$userListStored = $event->getUserList();
+
+		$event->setCapacity($capacity+1);
+
+		$manager->persist($event);
+	}
 }
