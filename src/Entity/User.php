@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Event;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -61,11 +62,22 @@ class User implements UserInterface, \Serializable
     /**
      * @ORM\Column(type="integer")
      */
-    private $order;
+    private $userorder;
+
+     /**
+     * Many Users have Many Groups.
+     * @ManyToMany(targetEntity="Event")
+     * @JoinTable(name="subscription,
+     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@JoinColumn(name="event_id", referencedColumnName="id")}
+     *      )
+     */
+    private $events;
 
     public function __construct()
     {
         $this->is_active = true;
+        $this->events = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getSalt()
@@ -221,19 +233,19 @@ class User implements UserInterface, \Serializable
     /**
      * @return mixed
      */
-    public function getOrder()
+    public function getUserorder()
     {
-        return $this->order;
+        return $this->userorder;
     }
 
     /**
-     * @param mixed $order
+     * @param mixed $userorder
      *
      * @return self
      */
-    public function setOrder($order)
+    public function setUserorder($userorder)
     {
-        $this->order = $order;
+        $this->userorder = $userorder;
 
         return $this;
     }

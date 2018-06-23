@@ -37,6 +37,11 @@ class Event
     private $capacity;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $capacity_left;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     private $is_active;
@@ -136,6 +141,26 @@ class Event
     public function setNotes(?string $notes): self
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCapacityLeft()
+    {
+        return $this->capacity_left;
+    }
+
+    /**
+     * @param mixed $capacity_left
+     *
+     * @return self
+     */
+    public function setCapacityLeft($capacity_left)
+    {
+        $this->capacity_left = $capacity_left;
 
         return $this;
     }

@@ -31,40 +31,46 @@ class EventController extends Controller
     public function list(EventRepository $eventRepository, AuthorizationCheckerInterface $authChecker): Response
     {
     	$user = $this->get('security.token_storage')->getToken()->getUser();
+    	$result = $this->getDoctrine()->getRepository(Event::class)->findOneByUser($user);
+    	dump($user);
+    	die;
+    	/*
+    	$dataToCheckSubscription = array(
+    		'event_id' => $event->getId(),
+    		'user_id' => $user->getId()
+    		);
 		$availableEventList = $this->getDoctrine()
 		    ->getRepository(Event::class)
-		    ->findAllAvailableEventsForTheUser($user->getId());
+		    ->findUserUnsubscribedEvents($user->getId());
+*/
+
+		$availableEventList = $this->getEventListAvailableForUser($user->getId());
 
     	return $this->render(
     		'event/list.html.twig',
     		['eventList' => $availableEventList]);
     }
-
-    protected function eventsSubscribedByUser($event)
+/*
+    protected function getEventListAvailableForUser($userId): array
     {
-		$user = $this->get('security.token_storage')->getToken()->getUser();
-		$userSuscriptionState = in_array($user->getId(), explode(',', $event->findAllAvailableEventsForTheUser()));
+    	//$userId = 17;
+        $sql = "SELECT id FROM
+            (SELECT event_id, id FROM
+                (SELECT event_id
+                    FROM subscription
+                    WHERE user_id='".$userId."')
+                a RIGHT JOIN event b
+                ON a.event_id=b.id)
+            c WHERE c.event_id IS NULL;";
+        $sql = "SELECT * FROM event e WHERE e.id  NOT IN (SELECT event_id FROM subscription WHERE user_id = :userId);";
+        $doctrineManager = $this->getDoctrine()->getManager();
+        // de esta query hay que mapear el resultado a objectos de tipo evento
+        $sqlResult = $doctrineManager->getConnection()->prepare($sql)->setParameters(['userId'=> $userId]);
+        $sqlResult->execute();
 
-		if ($userSuscriptionState) {
-			array_push($this->subcribed, $event);
-			// array_push($this->subscribed['yes'], $event);
-		} else {
-			// array_push($this->subscribed['no'], $event);
-			array_push($this->notSubcribed, $event);
-		}
+        return $sqlResult->fetchAll();
     }
-
-    public function eventUnSubscribedByUser()
-    {
-    	findUserUnsubscribedEvents();
-    }
-
-    protected function eventsAvailabletoJoin()
-    {
-
-    }
-
-
+*/
 	/**
 	 * @param Event $event
 	 *

@@ -11,8 +11,7 @@
 			<p>Evento: {{ event.name }}</p>
 			<p>Desde: {{ event.dateFrom.date }}</p>
 			<p>Hasta: {{ event.dateTo.date }}</p>
-			<p>Capacidad Total: {{ event.capacity }}</p>
-			<p>Capacidad Restante: {{ event.capacityLeft }}
+			<p>Capacidad: {{ event.capacityLeft }}/{{ event.capacity }}</p>
 				<a href="{{ path('add_user_to_event', {'id': event.id }) }}">Incorporarse</a>
 			</p>
 	    {% else %}
